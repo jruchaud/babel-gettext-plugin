@@ -1,7 +1,6 @@
 # babel-gettext-plugin
 Extract gettext string with babel support syntax JSX, ES6, ... It is based on node-gettext.
 
-
 Installation
 ============
 
@@ -30,17 +29,16 @@ babel --plugins babel-gettext-plugin code.js
 Options
 =======
 
-You can pass otions as extra in babel options :
+You can pass options as extra in babel options :
 ```js
-extra: {
-    gettext: {
+plugins: [
+    ["babel-gettext-plugin", {
         headers: <Object>,
         functionNames: <Object>,
         fileName: <String>
-    }
-}
+    }]
+]
 ```
-
 
 ### headers ###
 The headers to put in the po file.

@@ -21,24 +21,16 @@ var DEFAULT_HEADERS = {
     "plural-forms": "nplurals = 2; plural = (n !== 1);"
 };
 
-exports.default = function(_ref) {
+exports.default = function() {
     var currentFileName;
     var data;
-    var Plugin = _ref.Plugin;
-    //var t = _ref.types;
 
-    return new Plugin("babel-plugin-example", {visitor: {
+    return {visitor: {
 
-            CallExpression(node, parent, scope, config) {
-
-                var functionNames = config.opts && config.opts.extra && config.opts.extra.gettext
-                        && config.opts.extra.gettext.functionNames || DEFAULT_FUNCTION_NAMES;
-
-                var fileName = config.opts && config.opts.extra && config.opts.extra.gettext
-                        && config.opts.extra.gettext.fileName || DEFAULT_FILE_NAME;
-
-                var headers = config.opts && config.opts.extra && config.opts.extra.gettext
-                        && config.opts.extra.gettext.headers || DEFAULT_HEADERS;
+            CallExpression(nodePath, plugin) {
+                var functionNames = plugin.opts && plugin.opts.functionNames || DEFAULT_FUNCTION_NAMES;
+                var fileName = plugin.opts && plugin.opts.fileName || DEFAULT_FILE_NAME;
+                var headers = plugin.opts && plugin.opts.headers || DEFAULT_HEADERS;
 
                 if (fileName !== currentFileName) {
                     currentFileName = fileName;
@@ -60,13 +52,14 @@ exports.default = function(_ref) {
                 var defaultContext = data.translations.context;
                 var nplurals = /nplurals ?= ?(\d)/.exec(headers["plural-forms"])[1];
 
-                if (functionNames.hasOwnProperty(node.callee.name)
-                        || node.callee.property && functionNames.hasOwnProperty(node.callee.property.name)) {
+                let callee = nodePath.node.callee;
+                if (functionNames.hasOwnProperty(callee.name)
+                        || callee.property && functionNames.hasOwnProperty(callee.property.name)) {
 
-                    var functionName = functionNames[node.callee.name] || functionNames[node.callee.property.name];
+                    var functionName = functionNames[callee.name] || functionNames[callee.property.name];
                     var translate = {};
 
-                    var args = node.arguments;
+                    var args = nodePath.node.arguments;
                     for (var i = 0, l = args.length; i < l; i++) {
                         var name = functionName[i];
 
@@ -101,5 +94,5 @@ exports.default = function(_ref) {
                 }
             }
         }
-    });
+    };
 };

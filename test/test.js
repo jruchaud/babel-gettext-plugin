@@ -1,9 +1,10 @@
 "use strict";
 
 var assert = require("assert");
-var babel = require("babel");
+var babel = require("babel-core");
 
 var fs = require("fs");
+var plugin = require("../index.js").default;
 
 describe("babel-gettext-plugin", function() {
 
@@ -11,48 +12,63 @@ describe("babel-gettext-plugin", function() {
 
         it("Should return a result", function() {
             var result = babel.transform("let t = _t('code');_t('hello');", {
-                plugins: ["../index.js"],
-                extra: {
-                    gettext: {
+                plugins: [
+                    [plugin, {
                         functionNames: {
                            _t: ["msgid"]
                         },
-                        fileName: "test.po"
-                    }
-                }
+                        fileName: "./test/first.po"
+                    }]
+                ]
             });
             assert(!!result);
 
-            var content = fs.readFileSync("test.po");
+            var content = fs.readFileSync("./test/first.po");
             assert(!!content);
         });
 
         it("No file", function() {
             var result = babel.transform("let t = _t('code');_t('hello');", {
-                plugins: ["../index.js"],
-                extra: {
-                    gettext: {
-                        fileName: "test2.po"
-                    }
-                }
+                plugins: [
+                    [plugin, {
+                        fileName: "./test/test2.po"
+                    }]
+                ]
             });
 
             assert(!!result);
-            assert(!fs.existsSync("test2.po"));
+            assert(!fs.existsSync("./test/test2.po"));
         });
 
         it("Should return a result", function() {
             var result = babel.transform("dnpgettext('mydomain', 'mycontext', 'msg', 'plurial', 10)", {
-                plugins: ["../index.js"],
-                extra: {
-                    gettext: {
-                        fileName: "test.po"
-                    }
-                }
+                plugins: [
+                    [plugin, {
+                        fileName: "./test/dnpgettext.po"
+                    }]
+                ]
             });
             assert(!!result);
 
-            var content = fs.readFileSync("test.po");
+            var content = fs.readFileSync("./test/dnpgettext.po");
+            assert(!!content);
+        });
+
+        it("Should return a result", function() {
+            var result = babel.transform("let jsx = <h1>{_t('title')}</h1>", {
+                presets: ["react"],
+                plugins: [
+                    [plugin, {
+                        functionNames: {
+                           _t: ["msgid"]
+                        },
+                        fileName: "./test/react.po"
+                    }]
+                ]
+            });
+            assert(!!result);
+
+            var content = fs.readFileSync("./test/react.po");
             assert(!!content);
         });
 
