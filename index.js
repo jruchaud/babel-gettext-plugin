@@ -21,78 +21,80 @@ var DEFAULT_HEADERS = {
     "plural-forms": "nplurals = 2; plural = (n !== 1);"
 };
 
+exports.__esModule = true;
 exports.default = function() {
     var currentFileName;
     var data;
 
     return {visitor: {
 
-            CallExpression(nodePath, plugin) {
-                var functionNames = plugin.opts && plugin.opts.functionNames || DEFAULT_FUNCTION_NAMES;
-                var fileName = plugin.opts && plugin.opts.fileName || DEFAULT_FILE_NAME;
-                var headers = plugin.opts && plugin.opts.headers || DEFAULT_HEADERS;
+        CallExpression(nodePath, plugin) {
+            var functionNames = plugin.opts && plugin.opts.functionNames || DEFAULT_FUNCTION_NAMES;
+            var fileName = plugin.opts && plugin.opts.fileName || DEFAULT_FILE_NAME;
+            var headers = plugin.opts && plugin.opts.headers || DEFAULT_HEADERS;
 
-                if (fileName !== currentFileName) {
-                    currentFileName = fileName;
+            if (fileName !== currentFileName) {
+                currentFileName = fileName;
 
-                    data = {
-                        charset: "UTF-8",
+                data = {
+                    charset: "UTF-8",
 
-                        headers: headers,
+                    headers: headers,
 
-                        translations: {
-                            context: {
-                            }
+                    translations: {
+                        context: {
                         }
-                    };
+                    }
+                };
 
-                    headers["plural-forms"] = headers["plural-forms"] || DEFAULT_HEADERS["plural-forms"];
-                    headers["content-type"] = headers["content-type"] || DEFAULT_HEADERS["content-type"];
-                }
-                var defaultContext = data.translations.context;
-                var nplurals = /nplurals ?= ?(\d)/.exec(headers["plural-forms"])[1];
+                headers["plural-forms"] = headers["plural-forms"] || DEFAULT_HEADERS["plural-forms"];
+                headers["content-type"] = headers["content-type"] || DEFAULT_HEADERS["content-type"];
+            }
+            var defaultContext = data.translations.context;
+            var nplurals = /nplurals ?= ?(\d)/.exec(headers["plural-forms"])[1];
 
-                let callee = nodePath.node.callee;
-                if (functionNames.hasOwnProperty(callee.name)
-                        || callee.property && functionNames.hasOwnProperty(callee.property.name)) {
+            let callee = nodePath.node.callee;
+            if (functionNames.hasOwnProperty(callee.name)
+                    || callee.property && functionNames.hasOwnProperty(callee.property.name)) {
 
-                    var functionName = functionNames[callee.name] || functionNames[callee.property.name];
-                    var translate = {};
+                var functionName = functionNames[callee.name] || functionNames[callee.property.name];
+                var translate = {};
 
-                    var args = nodePath.node.arguments;
-                    for (var i = 0, l = args.length; i < l; i++) {
-                        var name = functionName[i];
+                var args = nodePath.node.arguments;
+                for (var i = 0, l = args.length; i < l; i++) {
+                    var name = functionName[i];
 
-                        if (name && name !== "count" && name !== "domain") {
-                            var arg = args[i];
-                            var value = arg.value;
+                    if (name && name !== "count" && name !== "domain") {
+                        var arg = args[i];
+                        var value = arg.value;
 
-                            if (value) {
-                                translate[name] = value;
-                            }
+                        if (value) {
+                            translate[name] = value;
+                        }
 
-                            if (name === "msgid_plural") {
-                                translate.msgstr = [];
-                                for (var p = 0; p < nplurals; p++) {
-                                    translate.msgstr[p] = "";
-                                }
+                        if (name === "msgid_plural") {
+                            translate.msgstr = [];
+                            for (var p = 0; p < nplurals; p++) {
+                                translate.msgstr[p] = "";
                             }
                         }
                     }
-
-                    var context = defaultContext;
-                    var msgctxt = translate.msgctxt;
-                    if (msgctxt) {
-                        data.translations[msgctxt] = data.translations[msgctxt] || {};
-                        context = data.translations[msgctxt];
-                    }
-
-                    context[translate.msgid] = translate;
-
-                    var output = gettextParser.po.compile(data);
-                    fs.writeFileSync(fileName, output);
                 }
+
+                var context = defaultContext;
+                var msgctxt = translate.msgctxt;
+                if (msgctxt) {
+                    data.translations[msgctxt] = data.translations[msgctxt] || {};
+                    context = data.translations[msgctxt];
+                }
+
+                context[translate.msgid] = translate;
+
+                var output = gettextParser.po.compile(data);
+                fs.writeFileSync(fileName, output);
             }
         }
-    };
+    }};
 };
+
+module.exports = exports.default;
