@@ -32,6 +32,7 @@ exports.default = function() {
             var functionNames = plugin.opts && plugin.opts.functionNames || DEFAULT_FUNCTION_NAMES;
             var fileName = plugin.opts && plugin.opts.fileName || DEFAULT_FILE_NAME;
             var headers = plugin.opts && plugin.opts.headers || DEFAULT_HEADERS;
+            var defaultTranslate = plugin.opts && plugin.opts.defaultTranslate;
 
             if (fileName !== currentFileName) {
                 currentFileName = fileName;
@@ -75,8 +76,10 @@ exports.default = function() {
                         if (name === "msgid_plural") {
                             translate.msgstr = [];
                             for (var p = 0; p < nplurals; p++) {
-                                translate.msgstr[p] = "";
+                                translate.msgstr[p] = defaultTranslate ? value : "";
                             }
+                        } else if (name === "msgid") {
+                            translate.msgstr = defaultTranslate ? value : "";
                         }
                     }
                 }

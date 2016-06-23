@@ -27,6 +27,24 @@ describe("babel-gettext-plugin", function() {
             assert(!!content);
         });
 
+        it("Should return a result", function() {
+            var result = babel.transform("let t = _t('code');", {
+                plugins: [
+                    [plugin, {
+                        functionNames: {
+                           _t: ["msgid"]
+                        },
+                        fileName: "./test/defaultTranslate.po",
+                        defaultTranslate: true
+                    }]
+                ]
+            });
+            assert(!!result);
+
+            var content = fs.readFileSync("./test/defaultTranslate.po");
+            assert(content.indexOf("msgstr \"code\"") !== -1);
+        });
+
         it("No file", function() {
             var result = babel.transform("let t = _t('code');_t('hello');", {
                 plugins: [

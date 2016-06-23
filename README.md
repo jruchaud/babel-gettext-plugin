@@ -35,7 +35,8 @@ plugins: [
     ["babel-gettext-plugin", {
         headers: <Object>,
         functionNames: <Object>,
-        fileName: <String>
+        fileName: <String>,
+        defaultTranslate: <Boolean>
     }]
 ]
 ```
@@ -63,6 +64,9 @@ functionNames: {
 
 ### fileName ###
 The file name where found all extracted strings.
+
+### defaultTranslate ###
+Add in msgstr the value of msgid, if the defaultTranslate is true.
 
 License
 =======
