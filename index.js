@@ -61,15 +61,15 @@ exports.default = function() {
                 var functionName = functionNames[callee.name] || functionNames[callee.property.name];
                 var translate = {};
 
-                var args = nodePath.node.arguments;
+                var args = nodePath.get('arguments');
                 for (var i = 0, l = args.length; i < l; i++) {
                     var name = functionName[i];
 
                     if (name && name !== "count" && name !== "domain") {
-                        var arg = args[i];
+                        var arg = args[i].evaluate();
                         var value = arg.value;
 
-                        if (value) {
+                        if (arg.confident && value) {
                             translate[name] = value;
                         }
 
