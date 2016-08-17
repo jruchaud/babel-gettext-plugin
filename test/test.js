@@ -45,6 +45,24 @@ describe("babel-gettext-plugin", function() {
             assert(content.indexOf("msgstr \"code\"") !== -1);
         });
 
+        it("Should return a result when expression is used as an argument", function() {
+            var result = babel.transform("let t = _t('some' + ' expression');", {
+                plugins: [
+                    [plugin, {
+                        functionNames: {
+                            _t: ["msgid"]
+                        },
+                        fileName: "./test/defaultTranslate.po",
+                        defaultTranslate: true
+                    }]
+                ]
+            });
+            assert(!!result);
+
+            var content = fs.readFileSync("./test/defaultTranslate.po");
+            assert(content.indexOf("msgstr \"some expression\"") !== -1);
+        });
+
         it("No file", function() {
             var result = babel.transform("let t = _t('code');_t('hello');", {
                 plugins: [
