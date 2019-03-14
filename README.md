@@ -6,7 +6,7 @@ Installation
 
 `npm install babel-gettext-plugin`
 
-Support version node 4 and Babel 6. (Tested version)
+Support version node 6 and Babel 7. (Tested version)
 
 Node use
 ========
